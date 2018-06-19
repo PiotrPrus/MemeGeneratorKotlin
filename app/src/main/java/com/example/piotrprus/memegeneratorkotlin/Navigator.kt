@@ -11,5 +11,11 @@ class Navigator {
             intent.putExtra(MemeComposerActivity.constants.EXTRA_IMAGE, imageUrl)
             activity.startActivity(intent)
         }
+
+        fun redirectToMemeResult(activity: Context, memeUrl: Uri) {
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.data = memeUrl
+            activity.startActivity(intent)
+        }
     }
 }

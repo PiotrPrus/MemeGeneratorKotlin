@@ -1,6 +1,8 @@
 package com.example.piotrprus.memegeneratorkotlin
 
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
@@ -15,7 +17,7 @@ import java.util.jar.Manifest
 class MemeComposerActivity: AppCompatActivity() {
     object constants {
         val EXTRA_IMAGE = "extra_img"
-        val PERMISSION_CODE = 101;
+        val PERMISSION_CODE = 101
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,7 +40,7 @@ class MemeComposerActivity: AppCompatActivity() {
             val result = ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
             if (PackageManager.PERMISSION_GRANTED == result) {
-                //positive here
+                onPermissionGranted.invoke()
             } else {
                 ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE), constants.PERMISSION_CODE)
             }
@@ -50,7 +52,7 @@ class MemeComposerActivity: AppCompatActivity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         when(requestCode) {
             constants.PERMISSION_CODE -> {
-                if (grantResults.isNotEmpty() && grantResults.get(0) == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     onPermissionGranted.invoke()
                  } else {
                     onPermissionRefused.invoke()
@@ -61,11 +63,22 @@ class MemeComposerActivity: AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    val onPermissionGranted = {
+    private val onPermissionGranted = {
+        val bitmap = Bitmap.createBitmap(meme_layout.width, meme_layout.height, Bitmap.Config.RGB_565)
+        val canvas = Canvas(bitmap)
+        meme_layout.draw(canvas)
 
+        val onSave = {
+            url: Uri? ->
+            if (url != null) {
+                Navigator.redirectToMemeResult(this, url)
+            }
+        }
+
+        bitmap.saveToGallery(this, text_input.toString().toLowerCase()+System.currentTimeMillis(), onSave)
     }
 
-    val onPermissionRefused = {
+    private val onPermissionRefused = {
         Toast.makeText(this, "Storage write permission required!", Toast.LENGTH_LONG).show()
     }
 

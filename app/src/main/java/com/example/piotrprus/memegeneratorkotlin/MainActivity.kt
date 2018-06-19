@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if(CODE_PICK_IMAGE == requestCode && Activity.RESULT_OK == resultCode)
             if(data != null && data.data != null) {
-                val imageUri = intent.data
+                val imageUri = data.data
                 Navigator.redirectToMemeComposerScreen(this, imageUri)
             }
         super.onActivityResult(requestCode, resultCode, data)
